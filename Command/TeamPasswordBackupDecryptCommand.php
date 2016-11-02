@@ -40,19 +40,48 @@ class TeamPasswordBackupDecryptCommand extends Command
             throw new \InvalidArgumentException('Could not load private-key.');
         }
 
-        $backup = json_decode($backup, true);
-        $result = array();
+        $backup     = json_decode($backup, true);
+        $result     = array();
+        $privateKey = openssl_get_privatekey($privateKey, $password);
 
-        foreach ($backup as $account) {
-            throw new \RuntimeException('Decryption not implemented.');
-            openssl_private_decrypt(
-                base64_decode($account['encrypted_key']),
-                $decrypted,
-                openssl_pkey_get_private($account['encrypted_key'], $password)
-            );
-            $result[] = $account;
+        if ($privateKey === false) {
+            throw new \RuntimeException('Could not decrypt private key.');
         }
 
+        foreach ($backup as $account) {
+
+            @openssl_private_decrypt(
+                base64_decode($account['encrypted_key']),
+                $decryptedKey,
+                $privateKey
+            );
+
+            if ($decryptedKey === null) {
+                throw new \RuntimeException('The encryption-key can not be decrypted with the given private-key.');
+            }
+
+            $encryptedData = @json_decode($account['encrypted_json']);
+
+            if ($encryptedData === null || !property_exists($encryptedData, 'data') || !property_exists($encryptedData, 'iv')) {
+                throw new \RuntimeException('No data for decryption detected.');
+            }
+
+            $decryptedData = openssl_decrypt(
+                base64_decode($encryptedData->data),
+                'AES-256-CBC',
+                $decryptedKey,
+                OPENSSL_RAW_DATA||OPENSSL_ZERO_PADDING,
+                base64_decode($encryptedData->iv)
+            );
+
+            if (!$decryptedData) {
+                throw new \RuntimeException('Could not decrypt data.');
+            }
+
+            $account['decrypted_data'] = json_decode($decryptedData, true);
+
+            $result[] = $account;
+        }
 
         $output->writeln("Successfully decrypted teampassword.com backup:" . print_r($result, true));
     }
