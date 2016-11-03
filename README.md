@@ -7,6 +7,6 @@ $ php ./composer.phar install
 # Usage
 
 ```
-$ php ./bin/console.php teampassword:backup --help
-$ php ./bin/console.php teampassword:backup:decrypt --help
+$ php ./bin/console teampassword:backup --help
+$ php ./bin/console teampassword:backup:decrypt --help
 ```
