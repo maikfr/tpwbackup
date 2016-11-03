@@ -10,7 +10,3 @@ $ php ./composer.phar install
 $ php ./bin/console.php teampassword:backup --help
 $ php ./bin/console.php teampassword:backup:decrypt --help
 ```
-
-# Todos
-
-* Implement decryption @ backup-decrypt command
