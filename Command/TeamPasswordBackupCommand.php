@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use GuzzleHttp\Client;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Class TeamPasswordBackupCommand
@@ -28,8 +29,8 @@ class TeamPasswordBackupCommand extends Command
         $this->setName('teampassword:backup');
         $this->setDescription('Create a backup from teampassword.com and store it (including the private key) in the filesystem.');
         $this->addArgument('username', InputArgument::REQUIRED, 'The teampassword.com username for login.');
-        $this->addArgument('password', InputArgument::REQUIRED, 'The teampassword.com password for login.');
         $this->addArgument('backup-directory', InputArgument::REQUIRED, 'The directory where to save teampassword.com backups and private-key.');
+        $this->addArgument('password', InputArgument::OPTIONAL, 'The teampassword.com password for login.');
     }
 
     /**
@@ -41,6 +42,15 @@ class TeamPasswordBackupCommand extends Command
         $username  = $input->getArgument('username');
         $password  = $input->getArgument('password');
         $client    = new Client(array('base_uri' => self::TEAMPASSWORD_BASEURI, 'cookies'  => true));
+
+        if (!$password) {
+            $helper = $this->getHelper('question');
+            $question = new Question('Please enter your password: ');
+            $question->setHidden(true);
+            $question->setHiddenFallback(false);
+
+            $password = $helper->ask($input, $output, $question);
+        }
 
         $loginResponse = $client->request(
             'POST',
