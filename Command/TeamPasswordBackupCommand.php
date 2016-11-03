@@ -5,6 +5,7 @@ namespace Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Question\Question;
@@ -30,7 +31,7 @@ class TeamPasswordBackupCommand extends Command
         $this->setDescription('Create a backup from teampassword.com and store it (including the private key) in the filesystem.');
         $this->addArgument('username', InputArgument::REQUIRED, 'The teampassword.com username for login.');
         $this->addArgument('backup-directory', InputArgument::REQUIRED, 'The directory where to save teampassword.com backups and private-key.');
-        $this->addArgument('password', InputArgument::OPTIONAL, 'The teampassword.com password for login.');
+        $this->addOption('password', null, InputOption::VALUE_REQUIRED, 'The teampassword.com password for login.', null);
     }
 
     /**
@@ -40,7 +41,7 @@ class TeamPasswordBackupCommand extends Command
     {
         $backupDir = $input->getArgument('backup-directory');
         $username  = $input->getArgument('username');
-        $password  = $input->getArgument('password');
+        $password  = $input->getOption('password');
         $client    = new Client(array('base_uri' => self::TEAMPASSWORD_BASEURI, 'cookies'  => true));
 
         if (!$password) {

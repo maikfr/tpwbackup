@@ -5,6 +5,7 @@ namespace Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
@@ -22,7 +23,7 @@ class TeamPasswordBackupDecryptCommand extends Command
         $this->setDescription('Decrypt an teampassword.com backup.');
         $this->addArgument('backup-file', InputArgument::REQUIRED, 'The teampassword.com backup file.');
         $this->addArgument('private-key', InputArgument::REQUIRED, 'The encrypted private-key file.');
-        $this->addArgument('password', InputArgument::OPTIONAL, 'The password for the encrypted private-key.');
+        $this->addOption('password', null, InputOption::VALUE_REQUIRED, 'The password for the encrypted private-key.', null);
     }
 
     /**
@@ -32,7 +33,7 @@ class TeamPasswordBackupDecryptCommand extends Command
     {
         $backup     = @file_get_contents($input->getArgument('backup-file'));
         $privateKey = @file_get_contents($input->getArgument('private-key'));
-        $password   = $input->getArgument('password');
+        $password   = $input->getOption('password');
 
         if (!$password) {
             $helper = $this->getHelper('question');
