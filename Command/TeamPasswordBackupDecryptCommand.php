@@ -89,6 +89,17 @@ class TeamPasswordBackupDecryptCommand extends Command
                 throw new \RuntimeException('Could not decrypt data.');
             }
 
+            // replace wrong chars like ä, ö, ü
+            if (!mb_detect_encoding($decryptedData)) {
+                $decryptedDataCharArray = str_split($decryptedData);
+                foreach ($decryptedDataCharArray as $key => $value) {
+                    if (!mb_detect_encoding($value)) {
+                        $decryptedDataCharArray[$key] = "#";
+                    }
+                }
+                $decryptedData = implode($decryptedDataCharArray);
+            }
+
             $account['decrypted_data'] = json_decode($decryptedData, true);
 
             $result[] = $account;
