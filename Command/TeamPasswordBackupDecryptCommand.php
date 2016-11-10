@@ -56,7 +56,7 @@ class TeamPasswordBackupDecryptCommand extends Command
         $privateKey = openssl_get_privatekey($privateKey, $password);
 
         if ($privateKey === false) {
-            throw new \RuntimeException('Could not decrypt private key.');
+            throw new \RuntimeException('Could not decrypt private key. Wrong password?');
         }
 
         foreach ($backup as $account) {
@@ -89,18 +89,7 @@ class TeamPasswordBackupDecryptCommand extends Command
                 throw new \RuntimeException('Could not decrypt data.');
             }
 
-            // replace wrong chars like ä, ö, ü
-            if (!mb_detect_encoding($decryptedData)) {
-                $decryptedDataCharArray = str_split($decryptedData);
-                foreach ($decryptedDataCharArray as $key => $value) {
-                    if (!mb_detect_encoding($value)) {
-                        $decryptedDataCharArray[$key] = "#";
-                    }
-                }
-                $decryptedData = implode($decryptedDataCharArray);
-            }
-
-            $account['decrypted_data'] = json_decode($decryptedData, true);
+            $account['decrypted_data'] = json_decode(utf8_encode($decryptedData), true);
 
             $result[] = $account;
         }
