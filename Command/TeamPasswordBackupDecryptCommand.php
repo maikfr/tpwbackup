@@ -5,7 +5,9 @@ namespace Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Class TeamPasswordBackupCommand
@@ -21,7 +23,7 @@ class TeamPasswordBackupDecryptCommand extends Command
         $this->setDescription('Decrypt an teampassword.com backup.');
         $this->addArgument('backup-file', InputArgument::REQUIRED, 'The teampassword.com backup file.');
         $this->addArgument('private-key', InputArgument::REQUIRED, 'The encrypted private-key file.');
-        $this->addArgument('password', InputArgument::REQUIRED, 'The password for the encrypted private-key.');
+        $this->addOption('password', null, InputOption::VALUE_REQUIRED, 'The password for the encrypted private-key.', null);
     }
 
     /**
@@ -31,7 +33,16 @@ class TeamPasswordBackupDecryptCommand extends Command
     {
         $backup     = @file_get_contents($input->getArgument('backup-file'));
         $privateKey = @file_get_contents($input->getArgument('private-key'));
-        $password   = $input->getArgument('password');
+        $password   = $input->getOption('password');
+
+        if (!$password) {
+            $helper = $this->getHelper('question');
+            $question = new Question('Please enter your password: ');
+            $question->setHidden(true);
+            $question->setHiddenFallback(false);
+
+            $password = $helper->ask($input, $output, $question);
+        }
 
         if ($backup === false) {
             throw new \InvalidArgumentException('Could not load backup-file.');
@@ -45,7 +56,7 @@ class TeamPasswordBackupDecryptCommand extends Command
         $privateKey = openssl_get_privatekey($privateKey, $password);
 
         if ($privateKey === false) {
-            throw new \RuntimeException('Could not decrypt private key.');
+            throw new \RuntimeException('Could not decrypt private key. Wrong password?');
         }
 
         foreach ($backup as $account) {
@@ -78,7 +89,7 @@ class TeamPasswordBackupDecryptCommand extends Command
                 throw new \RuntimeException('Could not decrypt data.');
             }
 
-            $account['decrypted_data'] = json_decode($decryptedData, true);
+            $account['decrypted_data'] = json_decode(utf8_encode($decryptedData), true);
 
             $result[] = $account;
         }
