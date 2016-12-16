@@ -1,5 +1,7 @@
 # Setup
 
+Dependencies: php7, php7.0-xml
+ 
 ```
 $ php ./composer.phar install
 ```
