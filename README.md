@@ -54,3 +54,11 @@ Help:
   Decrypt an teampassword.com backup.
 
 ```
+
+# Todos / Problems
+
+* On password change, the stored private key cannot be used to decrypt old backups. One possible solution could be, to store a privatekey per backup-file.
+
+# LICENSE
+
+see LICENSE file
