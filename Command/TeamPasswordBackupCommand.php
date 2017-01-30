@@ -81,7 +81,7 @@ class TeamPasswordBackupCommand extends Command
             throw new \RuntimeException("Could not write output-file: {$file}");
         }
 
-        $file = $backupDir . DIRECTORY_SEPARATOR . 'encrypted-key.pem';
+        $file = $backupDir . DIRECTORY_SEPARATOR . date("Y-m-d", time()) . '.pem';
         if (@file_put_contents($file, $loginResponse->encrypted_private_key) === false) {
             throw new \RuntimeException("Could not write output-file: {$file}");
         }
