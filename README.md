@@ -1,3 +1,13 @@
+# Description
+
+This project provides two simple commands to download and store offline-backups from teampassword.com. Included are:
+
+* encrypted backup (json) file
+* encrypted private key (for decryption of the backup json file)
+
+This project is NOT a part of the official teampassword.com project and comes without any warranty or similar things... Please see the LICENSE file for more information. 
+If something breaks or these commands become incompatible (for example if the offical teampassword.com API changes), please feel free to fix and send a pull request.
+
 # Setup
 
 Dependencies: php7, php7.0-xml
